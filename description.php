@@ -1,27 +1,41 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="description" content="Artur's best shop">
-        <title>BEST SHOP3000 Limited Edition</title>
-    </head>
-<body align="center" bgcolor="#7F7F7F"></body>
+<?php
+require_once "config.php";
+include "header.php" ?>
+<a href="index.php">Back to product listing</a>
+<?php
+$conn = new mysqli(DB_SERVER, DB_USER, DB_PASS, DB_NAME);
+if ($conn->connect_error)
+  die("Connection to database failed:" .
+    $conn->connect_error);
+$conn->query("set names utf8"); // Support umlaut characters
+$statement = $conn->prepare(
+"SELECT `name`, `description`, `price` FROM" .
+" `arturich` WHERE `id` = ?");
+$statement->bind_param("i", $_GET["id"]);
+$statement->execute();
+$results = $statement->get_result();
+$row = $results->fetch_assoc();
+?>
+
+<span style="float:right;"><?=$row["price"];?>EUR</span>
+<h1><?=$row["name"];?></h1>
+
+<p>
+<?=$row["description"];?>
+</p>
+
+<form method="post" action="cart.php">
+  <input type="hidden" name="id" value="<?=$_GET["id"];?>"/>
+  <input type="hidden" name="count" value="1"/>
+  <input type="submit" value="Add to cart"/>
     
+    <select>
+        <option value="one">1</option>
+        <option value="two">2</option>
+        <option value="three">3</option>
+        <option value="four">4</option>
+        <option value="five">5</option>
+    </select>
+</form>
 
-		<?php
-		$conn = new mysqli("localhost", "test", "t3st3r123", "test");
-		$statement = $conn->prepare("SELECT name,description, price FROM arturich WHERE id = ?");
-		$statement->bind_param("i", $_GET["id"]);
-		$statement->execute();
-		$results = $statement->get_result();
-		$row = $results->fetch_assoc();
-		?>
-     <h1><marquee behavior="scroll" direction="left"> <?=$row["name"];?></marquee></h1>
-    <h2><marquee behavior="scroll" direction="right"> <?=$row["price"];?>EUR</marquee></h2>
-
-		<p>
-			<link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'><em><?=$row["description"];?></em>
-	</p>
-  </body>
-</html>
-
+<?php include "footer.php"?>
